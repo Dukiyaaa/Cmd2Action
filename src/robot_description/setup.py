@@ -14,6 +14,7 @@ setup(
         ('share/' + package_name + "/launch", glob('launch/*.launch.py')),
         ('share/' + package_name + "/urdf", glob('urdf/*.urdf')),
         ('share/' + package_name + '/config', glob('config/*.rviz')),
+        ('share/' + package_name + '/world', glob('world/*.world')),
 
     ],
     install_requires=['setuptools'],
