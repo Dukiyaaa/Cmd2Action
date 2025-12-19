@@ -23,6 +23,7 @@ def generate_launch_description():
     )
     
     # 状态发布节点
+    # 等价命令: ros2 run robot_state_publisher robot_state_publisher --ros-args -p robot_description:=<urdf_content>
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -30,6 +31,7 @@ def generate_launch_description():
     )
 
     # 通过 PythonLaunchDescriptionSource包含另外一个launch文件
+    # 等价命令: ros2 launch gazebo_ros gazebo.launch.py world:=<world_path> verbose:=true
     launch_gazebo = launch.actions.IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [get_package_share_directory('gazebo_ros'), 
@@ -38,15 +40,16 @@ def generate_launch_description():
         ),
         launch_arguments=[('world', default_world_path), ('verbose', 'true')]
     )
-
     # 请求gazebo加载机器人
+    # 等价命令: ros2 run gazebo_ros spawn_entity.py -topic /robot_description -entity model
     spawn_entity_node = launch_ros.actions.Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
         arguments=['-topic', '/robot_description',
                    '-entity', robot_name_in_model, ]
     )
-
+    # 加载并激活关节状态广播器
+    # 等价命令: ros2 run controller_manager spawner joint_state_broadcaster
     load_joint_state_broadcaster = launch_ros.actions.Node(
         package='controller_manager',
         executable='spawner',
@@ -54,6 +57,8 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 加载并激活手臂控制器
+    # 等价命令: ros2 run controller_manager spawner scara_arm_controller
     load_arm_controller = launch_ros.actions.Node(
         package='controller_manager',
         executable='spawner',
@@ -61,6 +66,8 @@ def generate_launch_description():
         output='screen'
     )
 
+    # 加载并激活夹爪控制器
+    # 等价命令: ros2 run controller_manager spawner scara_gripper_controller
     load_gripper_controller = launch_ros.actions.Node(
         package='controller_manager',
         executable='spawner',
