@@ -7,11 +7,10 @@ def generate_launch_description():
     # 获取路径
     robot_name_in_model = 'model'
     urdf_tutorial_path = get_package_share_directory('robot_description')
-    default_model_path = urdf_tutorial_path + '/urdf/scara.urdf'
+    default_model_path = urdf_tutorial_path + '/urdf/scara.urdf.xacro'
     default_world_path = urdf_tutorial_path + '/world/default_world.world'
     # 为launch声明参数
     # 这一步实现的效果:
-    # ros2 launch robot_description display_robot.launch.py model:=/path/to/other.urdf
     action_declare_arg_mode_path = launch.actions.DeclareLaunchArgument(
         name='model',
         default_value=str(default_model_path),
@@ -19,7 +18,7 @@ def generate_launch_description():
     )
     # 获取文件内容生成新的参数
     robot_description = launch_ros.parameter_descriptions.ParameterValue(
-        launch.substitutions.Command(['cat ', launch.substitutions.LaunchConfiguration('model')]),
+        launch.substitutions.Command(['xacro ', launch.substitutions.LaunchConfiguration('model')]),
         value_type=str
     )
     
@@ -48,10 +47,34 @@ def generate_launch_description():
                    '-entity', robot_name_in_model, ]
     )
 
+    load_joint_state_broadcaster = launch_ros.actions.Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster'],
+        output='screen'
+    )
+
+    load_arm_controller = launch_ros.actions.Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['scara_arm_controller'],
+        output='screen'
+    )
+
+    load_gripper_controller = launch_ros.actions.Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['scara_gripper_controller'],
+        output='screen'
+    )
+
     # 返回launch描述
     return launch.LaunchDescription([
         action_declare_arg_mode_path,
         robot_state_publisher_node,
         launch_gazebo,
-        spawn_entity_node
+        spawn_entity_node,
+        load_joint_state_broadcaster,
+        load_arm_controller,
+        load_gripper_controller,
     ])

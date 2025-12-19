@@ -1,0 +1,37 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    scara_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    scara_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+scara_arm_controller:
+  ros__parameters:
+    joints:
+      - rotation1
+      - rotation2
+      - gripper_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+scara_gripper_controller:
+  ros__parameters:
+    joints:
+      - finger1_joint
+      - finger2_joint
+      - finger3_joint
+      - finger4_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
