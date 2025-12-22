@@ -4,6 +4,7 @@
 目的: 学习如何通过 ROS2 action 控制关节
 """
 
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
@@ -11,7 +12,8 @@ from control_msgs.action import FollowJointTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint
 from builtin_interfaces.msg import Duration
 from sensor_msgs.msg import JointState  # 用于接收关节状态
-
+from robot_application.gazebo_box_display import BoxSpawner
+import time
 
 class SimpleController(Node):
     def __init__(self):
@@ -23,6 +25,16 @@ class SimpleController(Node):
             self, 
             FollowJointTrajectory,  # action 类型
             '/scara_arm_controller/follow_joint_trajectory'
+        )
+        
+        # Gazebo 方块生成工具
+        self.box = BoxSpawner(self)
+
+        # 创建夹爪控制客户端
+        self.gripper_client = ActionClient(
+            self,
+            FollowJointTrajectory,
+            '/scara_gripper_controller/follow_joint_trajectory'
         )
         
         self.get_logger().info('控制器已初始化')
@@ -58,29 +70,108 @@ class SimpleController(Node):
         print(f"发送命令: pos1={pos1}, pos2={pos2}, pos3={pos3}")
         return self.arm_client.send_goal_async(goal_msg)
 
+    
+    def control_gripper(self, finger1, finger2, finger3, finger4, sec=1):
+        """
+        控制夹爪
+        
+        参数说明:
+            finger1: finger1_joint 位置 (0.0 ~ 0.02)
+            finger2: finger2_joint 位置 (-0.02 ~ 0.0)
+            finger3: finger3_joint 位置 (-0.02 ~ 0.0)
+            finger4: finger4_joint 位置 (0.0 ~ 0.02)
+            sec: 运动时间
+        """
+        goal_msg = FollowJointTrajectory.Goal()
+        goal_msg.trajectory.joint_names = [
+            'finger1_joint', 'finger2_joint', 
+            'finger3_joint', 'finger4_joint'
+        ]
+        
+        point = JointTrajectoryPoint()
+        point.positions = [finger1, finger2, finger3, finger4]
+        point.time_from_start = Duration(sec=sec)
+        
+        goal_msg.trajectory.points = [point]
+        
+        self.gripper_client.wait_for_server()
+        print(f"发送夹爪命令: [{finger1:.3f}, {finger2:.3f}, {finger3:.3f}, {finger4:.3f}]")
+        return self.gripper_client.send_goal_async(goal_msg)
+    
+    def open_gripper(self, sec=1):
+        """打开夹爪"""
+        print("打开夹爪...")
+        return self.control_gripper(-0.02, 0.02, 0.02, -0.02, sec)
+    
+    def close_gripper(self, sec=1):
+        """关闭夹爪"""
+        print("关闭夹爪...")
+        return self.control_gripper(0.02, -0.02, -0.02, 0.02, sec)
 
+    def world_init(self):
+        """初始化世界: 生成方块等"""
+        future = self.move_arm_simple(np.pi/2, 0.0, 0.0, sec=3)
+        # future = self.move_arm_simple(0.0, 0.0, -1.2)
+        rclpy.spin_until_future_complete(self, future, timeout_sec=5)
+
+        time.sleep(5)
+        print("完成!\n")
+        future = self.box.spawn_box(
+        name='test_box',
+        x=1.8, y=0.0, z=0.05,
+        yaw=0.0,
+        sx=0.032, sy=0.032, sz=0.032,
+        color_rgba=(0.2, 0.6, 0.9, 1.0),
+        mass=0.1,
+        reference_frame='world'
+        )
+        # 等待方块生成完成，再打开夹爪
+        if future:
+            rclpy.spin_until_future_complete(self, future, timeout_sec=5)
+        g = self.open_gripper(sec=2)
+        rclpy.spin_until_future_complete(self, g, timeout_sec=5)
+
+        time.sleep(2)
+        print("完成!\n")
 def main():
     rclpy.init()
     controller = SimpleController()
     
     print("\n=== 最简单的 SCARA 控制 Demo ===\n")
-    
+    controller.world_init()
+
     # Demo 1: 移动手臂到位置1
     print("Demo 1: 移动手臂到位置1 (pi / 2, pi / 2, -0.0)")
-    future = controller.move_arm_simple(3.14 / 2, 3.14 / 2, -0.0, sec=3)
+    future = controller.move_arm_simple(np.pi/2, 0.0, -0.255, sec=3)
     # future = controller.move_arm_simple(0.0, 0.0, -1.2)
     rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
     
     # 等待2秒
-    import time
+
     time.sleep(5)
     print("完成!\n")
     
-    # Demo end:回来
-    print("Demo end: 移动手臂回到初始位置 (0.0, 0.0, -0.0)")
-    future = controller.move_arm_simple(0.0, 0.0, 0.0, sec=3)
+    # 关闭夹爪并等待动作完成
+    g = controller.close_gripper(sec=2)
+    rclpy.spin_until_future_complete(controller, g, timeout_sec=5)
+
+    time.sleep(5)
+    print("完成!\n")
+    # 夹住后稍微抬起，验证是否抓取成功
+    print("抬起方块测试...")
+    lift = controller.move_arm_simple(np.pi/2, 0.0, 0.0, sec=2)
+    rclpy.spin_until_future_complete(controller, lift, timeout_sec=4)
+
+    # 回到初始姿态
+    print("回到初始姿态...")
+    future = controller.move_arm_simple(np.pi/2, 0.0, 0.0, sec=3)
     rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
 
+    # controller.close_gripper()
+    
+    # if future:
+    #     rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
+    # controller.destroy_node()
     controller.destroy_node()
     rclpy.shutdown()
 

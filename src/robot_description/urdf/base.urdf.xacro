@@ -108,7 +108,7 @@
             <child link="gripper_link"/>
             <origin xyz="0 -0.8 0" rpy="0 0 0"/>
             <axis xyz="0 0 1"/>
-            <limit effort="10" velocity="0.1" lower="-0.05" upper="0.0"/>
+            <limit effort="10" velocity="0.1" lower="-0.8" upper="0.0"/>
             <dynamics damping="0.1" friction="0.05"/>
         </joint>
 
@@ -143,8 +143,8 @@
             <child link="finger1"/>
             <origin xyz="0 -0.04 -0.23" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
-            <limit effort="5" velocity="0.05" lower="0.0" upper="0.02"/>
-            <dynamics damping="0.1" friction="0.01"/>
+            <limit effort="20" velocity="0.05" lower="0.0" upper="0.02"/>
+            <dynamics damping="0.5" friction="0.1"/>
         </joint>
         <link name="finger1">
             <collision>
@@ -170,6 +170,10 @@
         </link>
         <gazebo reference="finger1">
             <material>Gazebo/Black</material>
+            <mu1 value="20.0" />
+            <mu2 value="20.0" />
+            <kp value="1000000000.0" />
+            <kd value="1.0" />
         </gazebo>
 
         <joint name="finger2_joint" type="prismatic">
@@ -204,6 +208,10 @@
         </link>
         <gazebo reference="finger2">
             <material>Gazebo/Black</material>
+            <mu1 value="20.0" />
+            <mu2 value="20.0" />
+            <kp value="1000000000.0" />
+            <kd value="1.0" />
         </gazebo>
 
         <joint name="finger3_joint" type="prismatic">
@@ -238,6 +246,10 @@
         </link>
         <gazebo reference="finger3">
             <material>Gazebo/Black</material>
+            <mu1 value="20.0" />
+            <mu2 value="20.0" />
+            <kp value="1000000000.0" />
+            <kd value="1.0" />
         </gazebo>
 
         <joint name="finger4_joint" type="prismatic">
@@ -272,6 +284,11 @@
         </link>
         <gazebo reference="finger4">
             <material>Gazebo/Black</material>
+            <mu1 value="20.0" />
+            <mu2 value="20.0" />
+            <kp value="1000000000.0" />
+            <kd value="1.0" />
         </gazebo>
+
     </xacro:macro>
 </robot>
