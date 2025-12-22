@@ -111,7 +111,6 @@ class SimpleController(Node):
     def world_init(self):
         """初始化世界: 生成方块等"""
         future = self.move_arm_simple(np.pi/2, 0.0, 0.0, sec=3)
-        # future = self.move_arm_simple(0.0, 0.0, -1.2)
         rclpy.spin_until_future_complete(self, future, timeout_sec=5)
 
         time.sleep(5)
@@ -120,7 +119,7 @@ class SimpleController(Node):
         name='test_box',
         x=1.8, y=0.0, z=0.05,
         yaw=0.0,
-        sx=0.032, sy=0.032, sz=0.032,
+        sx=0.03, sy=0.03, sz=0.03,
         color_rgba=(0.2, 0.6, 0.9, 1.0),
         mass=0.1,
         reference_frame='world'
@@ -133,11 +132,11 @@ class SimpleController(Node):
 
         time.sleep(2)
         print("完成!\n")
+
 def main():
     rclpy.init()
     controller = SimpleController()
     
-    print("\n=== 最简单的 SCARA 控制 Demo ===\n")
     controller.world_init()
 
     # Demo 1: 移动手臂到位置1
@@ -157,21 +156,12 @@ def main():
 
     time.sleep(5)
     print("完成!\n")
-    # 夹住后稍微抬起，验证是否抓取成功
-    print("抬起方块测试...")
-    lift = controller.move_arm_simple(np.pi/2, 0.0, 0.0, sec=2)
-    rclpy.spin_until_future_complete(controller, lift, timeout_sec=4)
 
     # 回到初始姿态
     print("回到初始姿态...")
     future = controller.move_arm_simple(np.pi/2, 0.0, 0.0, sec=3)
     rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
 
-    # controller.close_gripper()
-    
-    # if future:
-    #     rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
-    # controller.destroy_node()
     controller.destroy_node()
     rclpy.shutdown()
 
