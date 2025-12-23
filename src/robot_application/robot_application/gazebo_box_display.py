@@ -56,7 +56,7 @@ class BoxSpawner:
                             </friction>
                             <contact>
                                 <ode>
-                                    <kp>1000000.0</kp>
+                                    <kp>100000000.0</kp>
                                     <kd>1.0</kd>
                                 </ode>
                             </contact>
