@@ -50,8 +50,8 @@ class BoxSpawner:
                         <surface>
                             <friction>
                                 <ode>
-                                    <mu>2.0</mu>
-                                    <mu2>2.0</mu2>
+                                    <mu>20.0</mu>
+                                    <mu2>20.0</mu2>
                                 </ode>
                             </friction>
                             <contact>

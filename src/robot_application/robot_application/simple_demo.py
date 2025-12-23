@@ -104,7 +104,7 @@ class SimpleController(Node):
         return self.control_gripper(-0.02, 0.02, 0.02, -0.02, sec)
     
     def close_gripper(self, sec=1):
-        """关闭夹爪"""
+        """关闭夹爪 - 增大闭合量以产生足够夹持力"""
         print("关闭夹爪...")
         return self.control_gripper(0.02, -0.02, -0.02, 0.02, sec)
 
@@ -119,9 +119,9 @@ class SimpleController(Node):
         name='test_box',
         x=1.8, y=0.0, z=0.05,
         yaw=0.0,
-        sx=0.03, sy=0.03, sz=0.03,
+        sx=0.032, sy=0.032, sz=0.032,
         color_rgba=(0.2, 0.6, 0.9, 1.0),
-        mass=0.1,
+        mass=0.01,
         reference_frame='world'
         )
         # 等待方块生成完成，再打开夹爪
@@ -139,29 +139,31 @@ def main():
     
     controller.world_init()
 
-    # Demo 1: 移动手臂到位置1
-    print("Demo 1: 移动手臂到位置1 (pi / 2, pi / 2, -0.0)")
+    # Demo 1: 移动手臂到抓取位置
+    print("Demo 1: 移动手臂到抓取位置 (下降到方块高度)")
     future = controller.move_arm_simple(np.pi/2, 0.0, -0.255, sec=3)
-    # future = controller.move_arm_simple(0.0, 0.0, -1.2)
     rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
     
-    # 等待2秒
-
-    time.sleep(5)
-    print("完成!\n")
+    print("到达抓取位置，等待稳定...")
+    time.sleep(3)  # 减少不必要的等待
+    print("位置稳定!\n")
     
     # 关闭夹爪并等待动作完成
-    g = controller.close_gripper(sec=2)
-    rclpy.spin_until_future_complete(controller, g, timeout_sec=5)
+    print("准备夹取方块...")
+    g = controller.close_gripper(sec=3)  # 延长到 3 秒
+    rclpy.spin_until_future_complete(controller, g, timeout_sec=6)
+    
+    print("等待物理引擎稳定接触...")
+    time.sleep(3)  # 给足够时间让夹爪施加压力
+    print("夹取完成!\n")
 
-    time.sleep(5)
-    print("完成!\n")
-
-    # 回到初始姿态
-    print("回到初始姿态...")
-    future = controller.move_arm_simple(np.pi/2, 0.0, 0.0, sec=3)
-    rclpy.spin_until_future_complete(controller, future, timeout_sec=5)
-
+    # # 回到初始姿态（抬起方块）
+    # print("抬起方块...")
+    # future = controller.move_arm_simple(np.pi/2, 0.0, -0.20, sec=4)  # 慢速抬起
+    # rclpy.spin_until_future_complete(controller, future, timeout_sec=6)
+    # print("抬起完成！")
+    time.sleep(3000)  # 给足够时间让夹爪施加压力
+    
     controller.destroy_node()
     rclpy.shutdown()
 
