@@ -170,10 +170,12 @@
         </link>
         <gazebo reference="finger1">
             <material>Gazebo/White</material>
-            <mu1 value="20.0" />
-            <mu2 value="20.0" />
-            <kp value="1000000000.0" />
-            <kd value="1.0" />
+            <mu1 value="1000.0" />
+            <mu2 value="1000.0" />
+            <kp value="1000000.0" />
+            <kd value="100.0" />
+            <minDepth>0.001</minDepth>
+            <maxVel>0.0</maxVel>
         </gazebo>
 
         <joint name="finger2_joint" type="prismatic">
@@ -208,10 +210,12 @@
         </link>
         <gazebo reference="finger2">
             <material>Gazebo/White</material>
-            <mu1 value="20.0" />
-            <mu2 value="20.0" />
-            <kp value="1000000000.0" />
-            <kd value="1.0" />
+            <mu1 value="1000.0" />
+            <mu2 value="1000.0" />
+            <kp value="1000000.0" />
+            <kd value="100.0" />
+            <minDepth>0.001</minDepth>
+            <maxVel>0.0</maxVel>
         </gazebo>
 
         <joint name="finger3_joint" type="prismatic">
@@ -246,10 +250,12 @@
         </link>
         <gazebo reference="finger3">
             <material>Gazebo/White</material>
-            <mu1 value="20.0" />
-            <mu2 value="20.0" />
-            <kp value="1000000000.0" />
-            <kd value="1.0" />
+            <mu1 value="1000.0" />
+            <mu2 value="1000.0" />
+            <kp value="1000000.0" />
+            <kd value="100.0" />
+            <minDepth>0.001</minDepth>
+            <maxVel>0.0</maxVel>
         </gazebo>
 
         <joint name="finger4_joint" type="prismatic">
@@ -284,10 +290,12 @@
         </link>
         <gazebo reference="finger4">
             <material>Gazebo/White</material>
-            <mu1 value="20.0" />
-            <mu2 value="20.0" />
-            <kp value="1000000000.0" />
-            <kd value="1.0" />
+            <mu1 value="1000.0" />
+            <mu2 value="1000.0" />
+            <kp value="1000000.0" />
+            <kd value="100.0" />
+            <minDepth>0.001</minDepth>
+            <maxVel>0.0</maxVel>
         </gazebo>
 
     </xacro:macro>

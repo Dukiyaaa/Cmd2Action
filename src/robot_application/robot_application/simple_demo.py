@@ -119,7 +119,7 @@ class SimpleController(Node):
         name='test_box',
         x=1.8, y=0.0, z=0.05,
         yaw=0.0,
-        sx=0.033, sy=0.033, sz=0.033,
+        sx=0.035, sy=0.035, sz=0.035,
         color_rgba=(0.2, 0.6, 0.9, 1.0),
         mass=0.01,
         reference_frame='world'

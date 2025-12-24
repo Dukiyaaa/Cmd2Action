@@ -50,14 +50,16 @@ class BoxSpawner:
                         <surface>
                             <friction>
                                 <ode>
-                                    <mu>20.0</mu>
-                                    <mu2>20.0</mu2>
+                                    <mu>1000.0</mu>
+                                    <mu2>1000.0</mu2>
                                 </ode>
                             </friction>
                             <contact>
                                 <ode>
-                                    <kp>100000000.0</kp>
-                                    <kd>1.0</kd>
+                                    <kp>1000000.0</kp>
+                                    <kd>100.0</kd>
+                                    <min_depth>0.001</min_depth>
+                                    <max_vel>0.0</max_vel>
                                 </ode>
                             </contact>
                         </surface>
